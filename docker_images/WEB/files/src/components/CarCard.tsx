@@ -2,41 +2,42 @@
 
 import { useState } from 'react';
 import Image from 'next/image';
-
-import { CarProps } from '@/utils';
 import CustomButton from './CustomButton';
 import CarDetails from './CarDetails';
 
+export interface CarProps {
+  _id?: string;
+  type: 'Essence' | 'Diesel' | 'Hybrid' | 'Electric';
+  mode: 'Automatic' | 'Manual';
+  price: number;
+  brand: string;
+  model: string;
+  date: string;
+  duration: string;
+  imgPath?: string;
+}
 interface CarCardProps {
   car: CarProps;
 }
 
 const CarCard = ({ car }: CarCardProps) => {
-  const { city_mpg, year, make, model, transmission, drive } = car;
+  const { model, imgPath, type, price, mode } = car;
 
   const [isOpen, setIsOpen] = useState(false);
 
   return (
     <div className='car-card group'>
       <div className='car-card__content'>
-        <h2 className='car-card__content-title'>
-          {make} {model}
-        </h2>
+        <h2 className='car-card__content-title'>{model}</h2>
       </div>
 
       <p className='flex mt-6 text-[32px] leading-[38px] font-extrabold'>
-        <span className='self-start text-[14px] leading-[17px] font-semibold'>
-          $
-        </span>
-        400
-        <span className='self-end text-[14px] leading-[17px] font-medium'>
-          /day
-        </span>
+        {price}€
       </p>
 
       <div className='relative w-full h-40 my-3 object-contain'>
         <Image
-          src=''
+          src={imgPath || '/audi-RS3.jpeg'}
           alt='car model'
           fill
           priority
@@ -53,17 +54,15 @@ const CarCard = ({ car }: CarCardProps) => {
               height={20}
               alt='steering wheel'
             />
-            <p className='text-[14px] leading-[17px]'>
-              {transmission === 'a' ? 'Automatic' : 'Manual'}
-            </p>
+            <p className='text-[14px] leading-[17px]'>{mode}</p>
           </div>
           <div className='car-card__icon'>
             <Image src='/tire.svg' width={20} height={20} alt='seat' />
-            <p className='car-card__icon-text'>{drive.toUpperCase()}</p>
+            <p className='car-card__icon-text'>{model}</p>
           </div>
           <div className='car-card__icon'>
             <Image src='/gas.svg' width={20} height={20} alt='seat' />
-            <p className='car-card__icon-text'>{city_mpg} MPG</p>
+            <p className='car-card__icon-text'>{type}</p>
           </div>
         </div>
 

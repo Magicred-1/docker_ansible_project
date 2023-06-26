@@ -1,6 +1,18 @@
 import { HomeProps } from '@/utils';
 import { fuels, yearsOfProduction } from '@/utils';
 import { CarCard, ShowMore, SearchBar, CustomFilter, Hero } from '@/components';
+import { CarProps } from '@/components/CarCard';
+
+const car: CarProps = {
+  type: 'Essence',
+  model: 'Audi A4',
+  mode: 'Automatic',
+  brand: 'Audi',
+  date: '2019',
+  duration: '1 year',
+  imgPath: '/audi-RS3.jpeg',
+  price: 100,
+};
 
 export default async function Home({ searchParams }: HomeProps) {
   const isDataEmpty = false;
@@ -27,6 +39,9 @@ export default async function Home({ searchParams }: HomeProps) {
         {!isDataEmpty ? (
           <section>
             <div className='home__cars-wrapper'>
+              <CarCard car={car} />
+              <CarCard car={car} />
+              <CarCard car={car} />
               {/* {allCars?.map((car) => (
                 <CarCard car={car} />
               ))} */}
@@ -40,7 +55,6 @@ export default async function Home({ searchParams }: HomeProps) {
         ) : (
           <div className='home__error-container'>
             <h2 className='text-black text-xl font-bold'>Oops, no results</h2>
-            {/* <p>{allCars?.message}</p> */}
           </div>
         )}
       </div>
