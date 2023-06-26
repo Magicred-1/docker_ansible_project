@@ -1,0 +1,32 @@
+services:
+  # Lancer le service web sur le port 3000
+  web:
+    build: ./WEB
+    ports:
+      - "3000:3000"
+    # Monter le répertoire du projet dans le conteneur
+    volumes:
+      - .:/web
+    depends_on:
+      - db
+  # Lancer le service de base de données sur le port 5432
+  db:
+    build: ./DB
+    ports:
+      - "5432:5432"
+    # Monter le répertoire du projet dans le conteneur
+    volumes:
+      - ./DB
+    # Définir les variables d'environnement
+    environment:
+      - db_name, db_user, db_password
+  # Run the api service at port 5000
+  api: 
+    build: ./API/expressjs.dockerfile
+    ports:
+      - "5000:5000"
+    # Mount the project directory to the container
+    volumes:
+      - .:/API
+    depends_on:
+      - db, web
