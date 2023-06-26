@@ -1,4 +1,4 @@
-FROM ubuntu as builder
+FROM ubuntu:latest
 
 # Installer NodeJS
 RUN apt-get update && apt-get install -y curl
@@ -8,13 +8,21 @@ RUN apt-get install -y nodejs
 # Installer Yarn
 RUN npm install -g yarn
 
-# Installer NextJS
-RUN yarn global add next
+# Créer le dossier /app
+RUN mkdir /app
+
+# Définir le dossier de travail par défaut
+WORKDIR /app
 
 # Copier les fichiers du dossier files dans le dossier /app
 COPY files /app
 
+# Installer les dépendances
+RUN yarn
+
+# Lancer le build
+RUN yarn build
+
 # Launch nextjs
 EXPOSE 3000
-CMD ["yarn", "dev"]
-
+CMD ["yarn", "start"]
