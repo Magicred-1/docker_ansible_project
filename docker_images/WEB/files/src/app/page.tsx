@@ -1,9 +1,10 @@
 import { HomeProps } from '@/utils';
 import { fuels, yearsOfProduction } from '@/utils';
 import { CarCard, ShowMore, SearchBar, CustomFilter, Hero } from '@/components';
-import { CarProps } from '@/components/CarCard';
+import { VehicleProps } from '@/components/VehicleCard';
 
-const car: CarProps = {
+const vehicle: VehicleProps = {
+  vehicleType: 'Car',
   type: 'Essence',
   model: 'Audi A4',
   mode: 'Automatic',
@@ -18,7 +19,7 @@ export default async function Home({ searchParams }: HomeProps) {
   const isDataEmpty = false;
 
   return (
-    <main className='overflow-hidden'>
+    <main className='overflow-hidden' data-theme='light'>
       <Hero />
 
       <div className='mt-12 padding-x padding-y max-width' id='discover'>
@@ -39,9 +40,9 @@ export default async function Home({ searchParams }: HomeProps) {
         {!isDataEmpty ? (
           <section>
             <div className='home__cars-wrapper'>
-              <CarCard car={car} />
-              <CarCard car={car} />
-              <CarCard car={car} />
+              <CarCard vehicle={vehicle} />
+              <CarCard vehicle={vehicle} />
+              <CarCard vehicle={vehicle} />
               {/* {allCars?.map((car) => (
                 <CarCard car={car} />
               ))} */}

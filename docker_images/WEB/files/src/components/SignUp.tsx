@@ -1,0 +1,217 @@
+'use client';
+
+import { Fragment, useEffect, useRef, useState } from 'react';
+import Image from 'next/image';
+import toast, { Toaster } from 'react-hot-toast';
+
+import { Dialog, Transition } from '@headlessui/react';
+import { useAtom } from 'jotai';
+import { userAtom } from '@/utils/store';
+
+interface SignUpProps {
+  isOpen: boolean;
+  closeModal: () => void;
+}
+
+const SignUp = ({ isOpen, closeModal }: SignUpProps) => {
+  const [form, setForm] = useState({
+    nom: '',
+    prenom: '',
+    email: '',
+    mdp: '',
+    mdpVerify: '',
+  });
+  const formRef = useRef<HTMLFormElement>(null);
+  const [user, setUser] = useAtom(userAtom);
+
+  const handleChange = (
+    e:
+      | React.ChangeEvent<HTMLInputElement>
+      | React.ChangeEvent<HTMLTextAreaElement>,
+    inputName: 'prenom' | 'email' | 'nom' | 'mdp' | 'mdpVerify'
+  ) => {
+    setForm({
+      ...form,
+      [inputName]: e.target.value,
+    });
+  };
+
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    if (
+      !form.prenom ||
+      !form.email ||
+      !form.prenom ||
+      !form.mdp ||
+      !form.mdpVerify
+    ) {
+      toast.error('Please fill all the fields');
+      return;
+    }
+    const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailPattern.test(form.email)) {
+      toast.error('The mail is not valid');
+      return;
+    }
+    if (form.mdp !== form.mdpVerify) {
+      toast.error('The passwords are not the same');
+      return;
+    }
+
+    setUser({
+      nom: form.nom,
+      prenom: form.prenom,
+      email: form.email,
+      password: form.mdp,
+    });
+
+    setForm({
+      prenom: '',
+      nom: '',
+      email: '',
+      mdp: '',
+      mdpVerify: '',
+    });
+
+    closeModal();
+  };
+
+  return (
+    <>
+      <Transition appear show={isOpen} as={Fragment}>
+        <Dialog as='div' className='relative z-10' onClose={closeModal}>
+          <Transition.Child
+            as={Fragment}
+            enter='ease-out duration-300'
+            enterFrom='opacity-0'
+            enterTo='opacity-100'
+            leave='ease-in duration-200'
+            leaveFrom='opacity-100'
+            leaveTo='opacity-0'
+          >
+            <div className='fixed inset-0 bg-black bg-opacity-25' />
+          </Transition.Child>
+
+          <div className='fixed inset-0 overflow-y-auto'>
+            <div className='flex min-h-full items-center justify-center p-4 text-center'>
+              <Transition.Child
+                as={Fragment}
+                enter='ease-out duration-300'
+                enterFrom='opacity-0 scale-95'
+                enterTo='opacity-100 scale-100'
+                leave='ease-out duration-300'
+                leaveFrom='opacity-100 scale-100'
+                leaveTo='opacity-0 scale-95'
+              >
+                <Dialog.Panel className='relative w-full max-w-lg max-h-[90vh] overflow-y-auto transform rounded-2xl bg-white p-6 text-left shadow-xl transition-all flex flex-col gap-5'>
+                  <button
+                    type='button'
+                    className='absolute top-2 right-2 z-10 w-fit p-2 bg-primary-blue-100 rounded-full'
+                    onClick={closeModal}
+                  >
+                    <Image
+                      src='/close.svg'
+                      alt='close'
+                      width={20}
+                      height={20}
+                      className='object-contain'
+                    />
+                  </button>
+
+                  <div
+                    className='flex-1 flex flex-col gap-3'
+                    data-theme='light'
+                  >
+                    <Toaster />
+                    <div className='flex lg:flex-row flex-col justify-center items-center'>
+                      <form
+                        ref={formRef}
+                        onSubmit={(e) => handleSubmit(e)}
+                        className='w-fit rounded-2xl'
+                      >
+                        <div className='form-control max-w-xs w-[350px] sm:w-[400px]'>
+                          <label className='label'>
+                            <span className='label-text'>Nom :</span>
+                          </label>
+                          <input
+                            type='text'
+                            placeholder='John Doe'
+                            onChange={(e) => handleChange(e, 'nom')}
+                            value={form.nom}
+                            className='input input-bordered max-w-xs bg-white text-black'
+                          />
+                        </div>
+                        <div className='form-control max-w-xs w-[350px] sm:w-[400px]'>
+                          <label className='label'>
+                            <span className='label-text'>Prénom :</span>
+                          </label>
+                          <input
+                            type='text'
+                            placeholder='John Doe'
+                            onChange={(e) => handleChange(e, 'prenom')}
+                            value={form.prenom}
+                            className='input input-bordered max-w-xs bg-white text-black'
+                          />
+                        </div>
+
+                        <div className='form-control max-w-xs mt-4'>
+                          <label className='label'>
+                            <span className='label-text'>Email :</span>
+                          </label>
+                          <input
+                            type='text'
+                            placeholder='johndoe@exemple.com'
+                            onChange={(e) => handleChange(e, 'email')}
+                            value={form.email}
+                            className='input input-bordered max-w-xs bg-white text-black'
+                          />
+                        </div>
+
+                        <div className='form-control max-w-xs mt-4'>
+                          <label className='label'>
+                            <span className='label-text'>Mot de passe :</span>
+                          </label>
+                          <input
+                            type='text'
+                            placeholder='johndoe@exemple.com'
+                            onChange={(e) => handleChange(e, 'mdp')}
+                            value={form.mdp}
+                            className='input input-bordered max-w-xs bg-white text-black'
+                          />
+                        </div>
+
+                        <div className='form-control max-w-xs mt-4'>
+                          <label className='label'>
+                            <span className='label-text'>
+                              Vérification mot de passe :
+                            </span>
+                          </label>
+                          <input
+                            type='text'
+                            placeholder='johndoe@exemple.com'
+                            onChange={(e) => handleChange(e, 'mdpVerify')}
+                            value={form.mdpVerify}
+                            className='input input-bordered max-w-xs bg-white text-black'
+                          />
+                        </div>
+
+                        <button
+                          type='submit'
+                          className='btn bg-green-600 hover:bg-green-800 mt-6'
+                        >
+                          Envoyer
+                        </button>
+                      </form>
+                    </div>
+                  </div>
+                </Dialog.Panel>
+              </Transition.Child>
+            </div>
+          </div>
+        </Dialog>
+      </Transition>
+    </>
+  );
+};
+
+export default SignUp;

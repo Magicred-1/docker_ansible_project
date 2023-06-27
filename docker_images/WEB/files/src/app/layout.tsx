@@ -14,7 +14,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang='en'>
-      <body className='relative'>
+      <body className='relative' data-theme='light'>
         <NavBar />
         {children}
         <Footer />
