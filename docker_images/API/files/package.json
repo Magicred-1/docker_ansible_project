@@ -1,0 +1,33 @@
+{
+  "name": "API REST - Docker / TS / Node / Express / MongoDB",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "node dist/index.js",
+    "build": "tsc",
+    "buildandrun": "tsc && nodemon dist/index.js",
+    "lint": "eslint . --fix",
+    "ts.check": "tsc --project tsconfig.json"
+  },
+  "keywords": [],
+  "author": "Alexis Duquenne, Djason Gadiou, Theo",
+  "license": "ISC",
+  "devDependencies": {
+    "@types/connect": "^3.4.35",
+    "@types/express": "^4.17.17",
+    "@types/mongodb": "^4.0.7",
+    "express": "^4.18.2",
+    "typescript": "^5.0.4"
+  },
+  "dependencies": {
+    "dotenv": "^16.3.1",
+    "mongodb": "^5.6.0",
+    "nodemon": "^2.0.22",
+    "ts-node": "^10.9.1"
+  },
+  "pre-commit": [
+    "ts.check",
+    "buildandrun"
+  ]
+}
