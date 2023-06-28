@@ -31,9 +31,13 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 const mongodb = __importStar(require("mongodb"));
 const dotenv_1 = require("dotenv");
+const bcrypt_1 = __importDefault(require("bcrypt"));
 (0, dotenv_1.config)();
 class MongoDBConnector {
     constructor() {
@@ -73,8 +77,8 @@ class MongoDBConnector {
             try {
                 yield this.client.connect();
                 const database = this.client.db(this.databaseName);
-                const cars = database.collection('vehicules');
-                const result = yield cars.find({}).toArray();
+                const vehicules = database.collection('vehicules');
+                const result = yield vehicules.find({}).toArray();
                 return result;
             }
             finally {
@@ -89,7 +93,9 @@ class MongoDBConnector {
                 yield this.client.connect();
                 const database = this.client.db(this.databaseName);
                 const vehicules = database.collection('vehicules');
-                const result = yield vehicules.findOne({ _id: new mongodb.ObjectId(vehiculeID) });
+                const result = yield vehicules.findOne({
+                    _id: new mongodb.ObjectId(vehiculeID)
+                });
                 if (result == undefined) {
                     throw new Error("Vehicule not found");
                 }
@@ -191,7 +197,9 @@ class MongoDBConnector {
                 yield this.client.connect();
                 const database = this.client.db(this.databaseName);
                 const carsitters = database.collection('carsitters');
-                const result = yield carsitters.findOne({ _id: new mongodb.ObjectId(carsitterID) });
+                const result = yield carsitters.findOne({
+                    _id: new mongodb.ObjectId(carsitterID)
+                });
                 if (result == undefined) {
                     throw new Error("Carsitter not found");
                 }
@@ -210,11 +218,15 @@ class MongoDBConnector {
                 const database = this.client.db('tp_ansible_docker');
                 const carsitters = database.collection('carsitters');
                 // On récupère le carsitter et verifie qu'il existe dans la base de données
-                const carsitter = yield carsitters.findOne({ _id: new mongodb.ObjectId(carsitterID) });
+                const carsitter = yield carsitters.findOne({
+                    _id: new mongodb.ObjectId(carsitterID)
+                });
                 if (carsitter == undefined) {
                     throw new Error("Carsitter not found");
                 }
-                const result = yield carsitters.deleteOne({ _id: new mongodb.ObjectId(carsitterID) });
+                const result = yield carsitters.deleteOne({
+                    _id: new mongodb.ObjectId(carsitterID)
+                });
                 console.log(`${result.deletedCount} carsitter(s) was/were deleted.`);
             }
             finally {
@@ -230,7 +242,9 @@ class MongoDBConnector {
                 const database = this.client.db('tp_ansible_docker');
                 const carsitters = database.collection('carsitters');
                 // On récupère le carsitter et verifie qu'il existe dans la base de données
-                const carsitter = yield carsitters.findOne({ _id: new mongodb.ObjectId(carsitterID) });
+                const carsitter = yield carsitters.findOne({
+                    _id: new mongodb.ObjectId(carsitterID)
+                });
                 if (carsitter == undefined) {
                     throw new Error("Carsitter not found");
                 }
@@ -247,7 +261,13 @@ class MongoDBConnector {
                 if (vehicule == undefined) {
                     vehicule = carsitter.vehicule;
                 }
-                const result = yield carsitters.updateOne({ _id: new mongodb.ObjectId(carsitterID) }, { $set: { lastname: lastname, firstname: firstname, age: age, vehicule: vehicule } });
+                const result = yield carsitters.updateOne({
+                    _id: new mongodb.ObjectId(carsitterID)
+                }, {
+                    $set: {
+                        lastname: lastname, firstname: firstname, age: age, vehicule: vehicule
+                    }
+                });
                 console.log(`${result.modifiedCount} carsitter(s) was/were updated.`);
             }
             finally {
@@ -257,7 +277,7 @@ class MongoDBConnector {
     }
     // CRUD pour les plannings
     // Ajouter un planning
-    planningAdd(vehiculeID, carsitterID, date, time, duration) {
+    planningAdd(planning) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 yield this.client.connect();
@@ -266,8 +286,8 @@ class MongoDBConnector {
                 const carsitters = database.collection('carsitters');
                 const vehicules = database.collection('vehicules');
                 // On vérifie que le carsitter et la voiture existent dans la base de données
-                const searchedCarsitter = yield carsitters.findOne({ _id: new mongodb.ObjectId(carsitterID) });
-                const searchedVehicule = yield vehicules.findOne({ _id: new mongodb.ObjectId(vehiculeID) });
+                const searchedCarsitter = yield carsitters.findOne({ _id: new mongodb.ObjectId(planning.carsitterID) });
+                const searchedVehicule = yield vehicules.findOne({ _id: new mongodb.ObjectId(planning.vehiculeID) });
                 if (searchedCarsitter == undefined) {
                     throw new Error("Carsitter not found");
                 }
@@ -276,10 +296,12 @@ class MongoDBConnector {
                 }
                 // create a document to be inserted
                 const insertedPlanning = {
-                    vehicule_: vehiculeID,
-                    date: date,
-                    time: time,
-                    duration: duration
+                    vehiculeID: planning.vehiculeID,
+                    carsitterID: planning.carsitterID,
+                    clientID: planning.clientID,
+                    date: planning.date,
+                    time: planning.time,
+                    duration: planning.duration,
                 };
                 const result = yield plannings.insertOne(insertedPlanning);
                 console.log(`The planning(s) were inserted with the _id: ${result.insertedId}`);
@@ -332,7 +354,9 @@ class MongoDBConnector {
                 const database = this.client.db('tp_ansible_docker');
                 const plannings = database.collection('plannings');
                 // On récupère le planning et verifie qu'il existe dans la base de données
-                const planning = yield plannings.findOne({ _id: new mongodb.ObjectId(planningID) });
+                const planning = yield plannings.findOne({
+                    _id: new mongodb.ObjectId(planningID)
+                });
                 if (planning == undefined) {
                     throw new Error("Planning not found");
                 }
@@ -352,7 +376,12 @@ class MongoDBConnector {
                 if (duration == undefined) {
                     duration = planning.duration;
                 }
-                const result = yield plannings.updateOne({ _id: new mongodb.ObjectId(planningID) }, { $set: { carsitter_: carsitterID, vehicule_: vehiculeID, date: date, time: time, duration: duration } });
+                const result = yield plannings.updateOne({ _id: new mongodb.ObjectId(planningID) }, { $set: {
+                        carsitter_: carsitterID, vehicule_: vehiculeID,
+                        date: date, time: time,
+                        duration: duration
+                    }
+                });
                 console.log(`${result.modifiedCount} planning(s) was/were updated.`);
             }
             finally {
@@ -360,7 +389,23 @@ class MongoDBConnector {
             }
         });
     }
+    planningGetById(planningID) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                yield this.client.connect();
+                const database = this.client.db(this.databaseName);
+                const plannings = database.collection('plannings');
+                console.log(planningID);
+                const result = yield plannings.findOne({ _id: new mongodb.ObjectId(planningID) });
+                return result;
+            }
+            finally {
+                yield this.client.close();
+            }
+        });
+    }
     // CRUD pour les clients
+    // Ajouter un client
     clientAdd(Client) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
@@ -371,16 +416,35 @@ class MongoDBConnector {
                 const insertedClient = {
                     lastname: Client.lastname,
                     firstname: Client.firstname,
-                    password: Client.password,
+                    password: bcrypt_1.default.hashSync(String(Client.password), 10),
                     email: Client.email,
-                    age: Client.age,
-                    vehicule: Client.vehicule
+                    age: Client.age
                 };
                 const result = yield clients.insertOne(insertedClient);
                 console.log(`The client(s) were inserted with the _id: ${result.insertedId}`);
             }
             finally {
                 this.client.close();
+            }
+        });
+    }
+    // Récupérer un client par son ID
+    clientGetByID(clientID) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                yield this.client.connect();
+                const database = this.client.db(this.databaseName);
+                const clients = database.collection('clients');
+                const result = yield clients.findOne({
+                    _id: new mongodb.ObjectId(clientID)
+                });
+                if (result == undefined) {
+                    throw new Error("Client not found");
+                }
+                return result;
+            }
+            finally {
+                yield this.client.close();
             }
         });
     }
@@ -420,7 +484,7 @@ class MongoDBConnector {
         });
     }
     // Modifier un client
-    clientUpdate(clientID, lastname, firstname, password, email, age, cars) {
+    clientUpdate(clientID, lastname, firstname, password, email, age) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 yield this.client.connect();
@@ -447,10 +511,12 @@ class MongoDBConnector {
                 if (age == undefined) {
                     age = client.age;
                 }
-                if (cars == undefined) {
-                    cars = client.cars;
-                }
-                const result = yield clients.updateOne({ _id: new mongodb.ObjectId(clientID) }, { $set: { lastname: lastname, firstname: firstname, password: password, email: email, age: age, cars: cars } });
+                const result = yield clients.updateOne({ _id: new mongodb.ObjectId(clientID) }, { $set: {
+                        lastname: lastname, firstname: firstname,
+                        password: password, email: email,
+                        age: age
+                    }
+                });
                 console.log(`${result.modifiedCount} client(s) was/were updated.`);
             }
             finally {

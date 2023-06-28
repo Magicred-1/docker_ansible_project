@@ -1,32 +1,35 @@
 services:
   # Lancer le service web sur le port 3000
   web:
-    build: ./WEB
+    build: ./web/expressjs.dockerfile
     ports:
       - "3000:3000"
-    # Monter le répertoire du projet dans le conteneur
+    # Monter le répertoire du projet WEB dans le conteneur
     volumes:
       - .:/web
     depends_on:
       - db
   # Lancer le service de base de données sur le port 5432
   db:
-    build: ./DB
+    build: ./db/mongodb.dockerfile
     ports:
       - "5432:5432"
-    # Monter le répertoire du projet dans le conteneur
+    # Monter le répertoire du projet DB dans le conteneur
     volumes:
-      - ./DB
+      - .:/db
     # Définir les variables d'environnement
     environment:
       - db_name, db_user, db_password
   # Run the api service at port 5000
   api: 
-    build: ./API/expressjs.dockerfile
+    build: .:/api/expressjs.dockerfile
     ports:
       - "5000:5000"
-    # Mount the project directory to the container
+    # Monter le répertoire du projet API dans le conteneur
     volumes:
-      - .:/API
+      - .:/api
     depends_on:
-      - db, web
+      - db
+  network:
+    driver: bridge,
+    name: local_network

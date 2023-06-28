@@ -15,10 +15,10 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
 const mongodb_1 = __importDefault(require("./src/utils/mongodb"));
 const dotenv_1 = require("dotenv");
-const bcrypt_1 = __importDefault(require("bcrypt"));
 (0, dotenv_1.config)();
 const db = new mongodb_1.default();
 const app = (0, express_1.default)();
+app.use(express_1.default.json());
 app.listen(process.env.PORT, () => {
     console.log(`Server is listening on port ${process.env.PORT}`);
 });
@@ -27,34 +27,45 @@ app.get('/', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
 }));
 // API Client
 // Clients CRUD
-app.get('/client', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const client = yield db.clientGetAll();
-    res.send(client);
+app.get('/clients', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const client = yield db.clientGetAll();
+        res.send(client);
+    }
+    catch (error) {
+        console.log(error);
+    }
 }));
-// app.get('/client/:id', (req: Request, res: Response) => {
-//     const id = req.params.id;
-//     const client = db.clientGetById(id);
-//     res.send(client);
+// app.get('/clients', (req: Request, res: Response) => {
+//     try {
+//         const id = req.body.id;
+//         const client = db.clientGetById(id);
+//         res.send(client);
+//     }
+//     catch (error) {
+//         console.log(error);
+//     }
 // });
-app.post('/client', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+app.post('/clients', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const newClient = {
             lastname: req.body.lastname,
             firstname: req.body.firstname,
             email: req.body.email,
             age: req.body.age,
-            password: bcrypt_1.default.hashSync(req.body.password, 10)
+            password: req.body.password,
         };
         const result = yield db.clientAdd(newClient);
-        res.send(result);
+        res.status(200).json(result);
     }
     catch (error) {
-        console.log(error);
+        console.error('Error adding client:', error);
+        res.status(500).json({ error: 'Internal Server Error' });
     }
 }));
 // Planning CRUD
 // Récupérer tous les plannings
-app.get('/planning', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+app.get('/plannings', (res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const planning = yield db.planningGetAll();
         res.send(planning);
@@ -63,27 +74,55 @@ app.get('/planning', (req, res) => __awaiter(void 0, void 0, void 0, function* (
         console.log(error);
     }
 }));
-// app.get('/planning/:id', async (req: Request, res: Response) => {
-//     const id = req.params.id;
-//     const planning = await db.planningGetById(id);
-//     res.send(planning);
-// }
-// );
-// app.post('/planning', async (req: Request, res: Response) => {
-//     const newPlanning: Planning =
-//     {
-//         date: req.body.date,
-//         duration: req.body.duration,
-//         client: req.body.client,
-//         carsitter: req.body.carsitter
-//     }
-//     const result = await db.planningAdd(newPlanning);
-//     res.send(result);
-// }
+app.get('/planning/:id', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const id = req.params.id;
+    const planning = yield db.planningGetById(id);
+    res.send(planning);
+}));
+app.post('/plannings', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const regexObjectID = /^[0-9a-fA-F]{24}$/;
+    const { vehiculeID, carsitterID, clientID, date, time, duration } = req.body;
+    if (carsitterID === vehiculeID || clientID === vehiculeID || carsitterID === clientID) {
+        res.status(400).json({ error: 'Carsitter and vehicule or client and vehicule or carsitter and client cannot be the same person' });
+        return;
+    }
+    if (!vehiculeID || !carsitterID || !clientID || !date || !time || !duration) {
+        res.status(400).json({ error: 'Missing required fields' });
+        return;
+    }
+    if (!regexObjectID.test(vehiculeID) || !regexObjectID.test(carsitterID) || !regexObjectID.test(clientID)) {
+        res.status(400).json({ error: 'Invalid ID' });
+        return;
+    }
+    // On verifie le format de la date et du temps et de la durée (1 ou 2 chiffres)
+    if (!date.match(/^\d{4}-\d{2}-\d{2}$/) || !time.match(/^\d{2}:\d{2}$/) || !duration.match(/^\d{1,2}$/)) {
+        res.status(400).json({ error: 'Invalid date or time or duration' });
+        return;
+    }
+    try {
+        const newPlanning = {
+            vehiculeID,
+            carsitterID,
+            clientID,
+            date,
+            time,
+            duration,
+        };
+        const result = yield db.planningAdd(newPlanning);
+        res.status(200).json(result);
+    }
+    catch (error) {
+        console.error('Error adding planning:', error);
+        res.status(500).json({
+            status: 500,
+            error: 'Internal Server Error'
+        });
+    }
+}));
 // );
 // Carsitter CRUD
 // Récupérer tous les carsitters
-app.get('/carsitter', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+app.get('/carsitters', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const carsitter = yield db.carsitterGetAll();
     res.send(carsitter);
 }));
@@ -93,27 +132,41 @@ app.get('/carsitter', (req, res) => __awaiter(void 0, void 0, void 0, function* 
 //    res.send(carsitter);
 // }
 // );
-// app.post('/carsitter', async (req: Request, res: Response) => {
-//     const newCarsitter: Carsitter =
-//     {
-//         lastname: req.body.lastname,
-//         firstname: req.body.firstname,
-//         age: req.body.age,
-//         password: req.body.password
-//     }
+app.post('/carsitters', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    if (!req.body.lastname || !req.body.firstname || !req.body.age || !req.body.password) {
+        res.status(400).json({ error: 'Missing required fields' });
+        return;
+    }
+    if (req.body.age < 18) {
+        res.status(400).json({ error: 'Carsitter must be 18 or older' });
+        return;
+    }
+    try {
+        const newCarsitter = {
+            lastname: req.body.lastname,
+            firstname: req.body.firstname,
+            age: req.body.age,
+            password: req.body.password
+        };
+    }
+    catch (error) {
+        console.error('Error adding carsitter:', error);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+}));
 // Vehicule CRUD
 // Récupérer tous les vehicules
-app.get('/vehicule', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+app.get('/vehicules', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const vehicule = yield db.vehiculeGetAll();
     res.send(vehicule);
 }));
-// app.get('/vehicule/:id', async (req: Request, res: Response) => {
-//     const id = req.params.id;
+// app.get('/vehicules', async (req: Request, res: Response) => {
+//     const id = req.body.id;
 //     const vehicule = await db.vehiculeGetById(id);
 //     res.send(vehicule);
 // }
 // );
-// app.post('/vehicule', async (req: Request, res: Response) => {
+// app.post('/vehicules', async (req: Request, res: Response) => {
 //     const newVehicule: Vehicule =
 //     {
 //         type: req.body.type,
@@ -127,13 +180,13 @@ app.get('/vehicule', (req, res) => __awaiter(void 0, void 0, void 0, function* (
 //     res.send(result);
 // }
 // );
-// app.delete('/vehicule/:id', async (req: Request, res: Response) => {
+// app.delete('/vehicules/:id', async (req: Request, res: Response) => {
 //     const id = req.params.id;
 //     const result = await db.vehiculeDelete(id);
 //     res.send(result);
 // }
 // );
-// app.update('/vehicule/:id', async (req: Request, res: Response) => {
+// app.update('/vehicules/:id', async (req: Request, res: Response) => {
 //     const id = req.params.id;
 //     const result = await db.vehiculeUpdate(id);
 //     res.send(result);

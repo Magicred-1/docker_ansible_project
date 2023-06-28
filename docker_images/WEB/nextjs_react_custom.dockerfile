@@ -17,12 +17,12 @@ WORKDIR /app
 # Copier les fichiers du dossier files dans le dossier /app
 COPY files /app
 
-# Installer les dépendances
+# Installer les dépendances du projet provenant du dossier /files en local
 RUN yarn
 
 # Lancer le build
 RUN yarn build
 
-# Launch nextjs
+# Lancer l'application sur le port 3000 avec Yarn
 EXPOSE 3000
 CMD ["yarn", "start"]
