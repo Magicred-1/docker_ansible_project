@@ -172,7 +172,7 @@ const SignUp = ({ isOpen, closeModal }: SignUpProps) => {
                             <span className='label-text'>Mot de passe :</span>
                           </label>
                           <input
-                            type='text'
+                            type='password'
                             placeholder='johndoe@exemple.com'
                             onChange={(e) => handleChange(e, 'mdp')}
                             value={form.mdp}
@@ -187,7 +187,7 @@ const SignUp = ({ isOpen, closeModal }: SignUpProps) => {
                             </span>
                           </label>
                           <input
-                            type='text'
+                            type='password'
                             placeholder='johndoe@exemple.com'
                             onChange={(e) => handleChange(e, 'mdpVerify')}
                             value={form.mdpVerify}

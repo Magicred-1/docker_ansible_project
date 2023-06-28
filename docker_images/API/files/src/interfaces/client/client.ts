@@ -7,7 +7,6 @@ interface Client {
     email?: string;
     age?: number;
     password?: string;
-    vehicule?: Vehicule;
 }
 
 export { Client };

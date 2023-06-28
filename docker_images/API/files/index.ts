@@ -3,6 +3,7 @@ import { Request, Response } from 'express';
 import MongoDBConnector from './src/utils/mongodb';
 import { config } from 'dotenv';
 import { Vehicule, Carsitter, Planning, Client } from './src/interfaces';
+import cors from 'cors';
 
 config();
 
@@ -11,6 +12,8 @@ const db = new MongoDBConnector();
 const app = express();
 
 app.use(express.json());
+
+app.use(cors());
 
 app.listen(process.env.PORT, () => {
     console.log(`Server is listening on port ${process.env.PORT}`);
@@ -33,18 +36,18 @@ app.get('/clients', async (req: Request, res: Response) => {
     }
 });
 
-// app.get('/clients', (req: Request, res: Response) => {
-//     try {
-//         const id = req.body.id;
+app.get('/clients', (req: Request, res: Response) => {
+    try {
+        const id = req.body.id;
 
-//         const client = db.clientGetById(id);
+        const client = db.clientGetByID(id);
 
-//         res.send(client);
-//     }
-//     catch (error) {
-//         console.log(error);
-//     }
-// });
+        res.send(client);
+    }
+    catch (error) {
+        console.log(error);
+    }
+});
 
 app.post('/clients', async (req: Request, res: Response) => {
     try {
@@ -65,6 +68,29 @@ app.post('/clients', async (req: Request, res: Response) => {
     }
 });
 
+app.put('/clients/:id', async (req: Request, res: Response) => {
+    try {
+        const id = req.params.id;
+
+        const client = await db.clientGetByID(id);
+
+        res.send(client);
+    } catch (error) {
+        console.log(error);
+    }
+});
+
+app.delete('/clients/:id', async (req: Request, res: Response) => {
+    try {
+        const id = req.params.id;
+
+        const client = await db.clientDelete(id);
+
+        res.send(client);
+    } catch (error) {
+        console.log(error);
+    }
+});
 
 // Planning CRUD
 // Récupérer tous les plannings
@@ -89,29 +115,7 @@ app.get('/planning/:id', async (req: Request, res: Response) => {
 );
 
 app.post('/plannings', async (req: Request, res: Response) => {
-    const regexObjectID = /^[0-9a-fA-F]{24}$/;
     const { vehiculeID, carsitterID, clientID, date, time, duration } = req.body;
-
-    if (carsitterID === vehiculeID || clientID === vehiculeID || carsitterID === clientID) {
-        res.status(400).json({ error: 'Carsitter and vehicule or client and vehicule or carsitter and client cannot be the same person' });
-                return;
-    }
-
-    if (!vehiculeID || !carsitterID || !clientID || !date || !time || !duration) {
-        res.status(400).json({ error: 'Missing required fields' });
-        return;
-    }
-
-    if (!regexObjectID.test(vehiculeID) || !regexObjectID.test(carsitterID) || !regexObjectID.test(clientID)) {
-        res.status(400).json({ error: 'Invalid ID' });
-        return;
-    }
-    
-    // On verifie le format de la date et du temps et de la durée (1 ou 2 chiffres)
-    if (!date.match(/^\d{4}-\d{2}-\d{2}$/) || !time.match(/^\d{2}:\d{2}$/) || !duration.match(/^\d{1,2}$/)) {
-        res.status(400).json({ error: 'Invalid date or time or duration' });
-        return;
-    }
 
     try {
         const newPlanning: Planning = {

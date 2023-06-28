@@ -123,7 +123,7 @@ const SignIn = ({ isOpen, closeModal }: SignInProps) => {
                             <span className='label-text'>Mot de passe :</span>
                           </label>
                           <input
-                            type='text'
+                            type='password'
                             placeholder='John Doe'
                             onChange={(e) => handleChange(e, 'mdp')}
                             value={form.mdp}

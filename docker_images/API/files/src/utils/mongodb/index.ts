@@ -1,6 +1,6 @@
 import * as mongodb from 'mongodb';
 import { config } from 'dotenv';
-import { Vehicule, Carsitter, Planning, Client } from '../../interfaces/';
+import { Vehicule, Carsitter, Planning, Client } from '../../interfaces';
 import bcrypt from 'bcrypt';
 
 config();
@@ -9,6 +9,7 @@ class MongoDBConnector {
     private uri: string;
     private client: mongodb.MongoClient;
     private databaseName: string;
+    private regexObjectID = /^[0-9a-fA-F]{24}$/;
 
     constructor() {
         this.uri = process.env.MONGODB_URI ?? '';
@@ -337,23 +338,6 @@ class MongoDBConnector {
     async planningAdd(planning: Planning) {
         try {
             await this.client.connect();
-            
-            const database = this.client.db(this.databaseName);
-            const plannings = database.collection('plannings');
-            const carsitters = database.collection('carsitters');
-            const vehicules = database.collection('vehicules');
-
-            // On vérifie que le carsitter et la voiture existent dans la base de données
-            const searchedCarsitter = await carsitters.findOne({ _id: new mongodb.ObjectId(planning.carsitterID) });
-            const searchedVehicule = await vehicules.findOne({ _id: new mongodb.ObjectId(planning.vehiculeID) });
-
-            if (searchedCarsitter == undefined) {
-                throw new Error("Carsitter not found");
-            }
-
-            if (searchedVehicule == undefined) {
-                throw new Error("Car not found");
-            }
 
             // create a document to be inserted
             const insertedPlanning = {
@@ -364,6 +348,48 @@ class MongoDBConnector {
                 time: planning.time,
                 duration: planning.duration,
             };
+            
+            const database = this.client.db(this.databaseName);
+            const plannings = database.collection('plannings');
+            const carsitters = database.collection('carsitters');
+            const vehicules = database.collection('vehicules');
+            const clients = database.collection('clients');
+
+            // On vérifie que le carsitter et la voiture existent dans la base de données
+            const searchedCarsitter = await carsitters.findOne({ _id: new mongodb.ObjectId(planning.carsitterID) });
+            const searchedVehicule = await vehicules.findOne({ _id: new mongodb.ObjectId(planning.vehiculeID) });
+            const searchedClient = await clients.findOne({ _id: new mongodb.ObjectId(planning.clientID) });
+            const searchedPlanning = await plannings.findOne({ _id: new mongodb.ObjectId(planning["_id"]) });
+
+            if (searchedCarsitter?._id === searchedVehicule?._id || searchedCarsitter?._id === searchedClient?._id || searchedVehicule?._id === searchedClient?._id) {
+                throw new Error("Carsitter, vehicule and client must be different");
+            }
+
+            if (searchedPlanning != undefined) {
+                throw new Error("Planning already exists");
+            }
+        
+            if (!searchedCarsitter || !searchedVehicule || !searchedClient) {
+                throw new Error("Carsitter, vehicule or client not found");
+            }
+        
+            
+            // On verifie le format de la date et du temps et de la durée (1 ou 2 chiffres)
+            if (insertedPlanning.date == undefined || insertedPlanning.time == undefined || insertedPlanning.duration == undefined) {
+                throw new Error("Date, time or duration is undefined");
+            }
+
+            if (String(insertedPlanning.date).match(/^[0-9]{4}-[0-9]{2}-[0-9]{2}$/) == null || String(insertedPlanning.time).match(/^[0-9]{1,2}$/) == null || String(insertedPlanning.duration).match(/^[0-9]{1,2}$/) == null) {
+                throw new Error("Date, time or duration is not valid");
+            }
+
+            if (searchedCarsitter == undefined) {
+                throw new Error("Carsitter not found");
+            }
+
+            if (searchedVehicule == undefined) {
+                throw new Error("Car not found");
+            }
 
             const result = await plannings.insertOne(insertedPlanning);
             console.log(
@@ -481,12 +507,38 @@ class MongoDBConnector {
             console.log(planningID);
             
             const result = await plannings.findOne({ _id: new mongodb.ObjectId(planningID) });
+
+            if (!result) {
+                throw new Error("Planning not found");
+            }
+
             return result;
         }
         finally {
             await this.client.close();
         }
     }
+
+    async deletePlanningByID(planningID: Planning["_id"]) {
+        try {
+            await this.client.connect();
+
+            const database = this.client.db(this.databaseName);
+            const planning = database.collection('plannings');
+
+            if (!planning) {
+                throw new Error("Planning not found");
+            }
+
+            const result = await planning.deleteOne({ _id: new mongodb.ObjectId(planningID) });
+
+            return result;
+        }
+        finally {
+            await this.client.close();
+        }
+    }
+
 
     // CRUD pour les clients
     // Ajouter un client
