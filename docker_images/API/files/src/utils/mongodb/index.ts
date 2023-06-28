@@ -26,6 +26,22 @@ class MongoDBConnector {
             const database = this.client.db(this.databaseName);
             const cars = database.collection('vehicules');
 
+            if (!vehicule.type || !vehicule.brand || !vehicule.model || !vehicule.price || !vehicule.mode || !vehicule.vehicleType) {
+                throw new Error("Missing parameters");
+            }
+
+            if (vehicule.price < 0) {
+                throw new Error("Price must be positive");
+            }
+
+            if (vehicule.mode != "auto" && vehicule.mode != "manual") {
+                throw new Error("Mode must be auto or manual");
+            }
+
+            if (vehicule.vehicleType != "car" && vehicule.vehicleType != "moto") {
+                throw new Error("Vehicle type must be car or moto");
+            }
+
             // create a document to be inserted
             const insertedCar = {
                 type: vehicule.type,
@@ -98,7 +114,7 @@ class MongoDBConnector {
             const searchedVehicule = await vehicule.findOne({ _id: new mongodb.ObjectId(vehiculeID) });
 
             if (searchedVehicule == undefined) {
-                throw new Error("Car not found");
+                throw new Error("The car does not exist, impossible to delete it.");
             }
 
             const result = await vehicule.deleteOne({ _id: new mongodb.ObjectId(vehiculeID) });
@@ -111,9 +127,9 @@ class MongoDBConnector {
 
     // Modifier une voiture
     async vehiculeUpdate(
-        vehiculeID: Vehicule["_id"], type: Vehicule["type"], 
-        brand: Vehicule["brand"], model: Vehicule["model"], 
-        price: Vehicule["price"], mode: Vehicule["mode"]
+        vehiculeID: Vehicule["_id"], vehiculeType?: Vehicule["type"], 
+        brand?: Vehicule["brand"], model?: Vehicule["model"], 
+        price?: Vehicule["price"], mode?: Vehicule["mode"]
     ) {
         try {
             await this.client.connect();
@@ -126,9 +142,31 @@ class MongoDBConnector {
                 throw new Error("Car not found");
             }
 
+            // On vérifie que les paramètres sont corrects
+            if (price != undefined) {
+                price = searchedVehicule.price;
+            }
+
+            if (mode != undefined) {
+                searchedVehicule.mode = mode;
+            }
+
+            if (vehiculeType != undefined) {
+                searchedVehicule.type = vehiculeType;
+            }
+
+            if (brand != undefined) {
+                searchedVehicule.brand = brand;
+            }
+
+            if (mode != undefined) {
+                searchedVehicule.model = mode;
+            }
+
+
             const result = await vehicules.updateOne(
                 { _id: new mongodb.ObjectId(vehiculeID) },
-                { $set: { type: type, brand: brand, model: model, price: price, mode: mode } }
+                { $set: { vehiculeType: vehiculeType, brand: brand, model: model, price: price, mode: mode } }
             );
             console.log(`${result.modifiedCount} car(s) was/were updated.`);
         }

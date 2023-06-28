@@ -191,41 +191,53 @@ app.get('/vehicules', async (req: Request, res: Response) => {
 }
 );
 
-// app.get('/vehicules', async (req: Request, res: Response) => {
-//     const id = req.body.id;
-//     const vehicule = await db.vehiculeGetById(id);
-//     res.send(vehicule);
-// }
-// );
+app.get('/vehicules', async (req: Request, res: Response) => {
+    const id = req.body.id;
+    const vehicule = await db.vehiculeGetByID(id);
+    res.send(vehicule);
+}
+);
 
-// app.post('/vehicules', async (req: Request, res: Response) => {
-//     const newVehicule: Vehicule =
-//     {
-//         type: req.body.type,
-//         brand: req.body.brand,
-//         model: req.body.model,
-//         price: req.body.price,
-//         mode: req.body.mode,
-//         vehicleType: req.body.vehicleType
-//     }
+app.post('/vehicules', async (req: Request, res: Response) => {
+    const newVehicule: Vehicule =
+    {
+        type: req.body.type,
+        brand: req.body.brand,
+        model: req.body.model,
+        price: req.body.price,
+        mode: req.body.mode,
+        vehicleType: req.body.vehicleType
+    }
 
-//     const result = await db.vehiculeAdd(newVehicule);
+    const result = await db.vehiculeAdd(newVehicule);
 
-//     res.send(result);
-// }
-// );
+    res.send(result);
+}
+);
 
-// app.delete('/vehicules/:id', async (req: Request, res: Response) => {
-//     const id = req.params.id;
-//     const result = await db.vehiculeDelete(id);
-//     res.send(result);
-// }
-// );
+app.delete('/vehicules/:id', async (req: Request, res: Response) => {
+    const id = req.params.id;
+    const result = await db.vehiculeDelete(id);
+    res.send(result);
+}
+);
 
-// app.update('/vehicules/:id', async (req: Request, res: Response) => {
-//     const id = req.params.id;
-//     const result = await db.vehiculeUpdate(id);
-//     res.send(result);
-// }
+app.put('/vehicules/:id', async (req: Request, res: Response) => {
+    const id = req.params.id;
 
-// );
+    const newVehicule: Vehicule =
+    {
+        type: req.body.type,
+        brand: req.body.brand,
+        model: req.body.model,
+        price: req.body.price,
+        mode: req.body.mode,
+        vehicleType: req.body.vehicleType
+    }
+
+    const result = await db.vehiculeUpdate(id, newVehicule.type, newVehicule.brand, newVehicule.model, newVehicule.price, newVehicule.mode);
+
+    res.send(result);
+}
+
+);
