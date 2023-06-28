@@ -8,6 +8,7 @@ import SearchBar from './Searchbar';
 import Hero from './Hero';
 import SignIn from './SignUp';
 import SignUp from './SignUp';
+import CarDepot from './CarDepot';
 
 export {
   Hero,
@@ -20,4 +21,5 @@ export {
   SearchBar,
   SignIn,
   SignUp,
+  CarDepot,
 };

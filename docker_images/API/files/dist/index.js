@@ -15,10 +15,12 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
 const mongodb_1 = __importDefault(require("./src/utils/mongodb"));
 const dotenv_1 = require("dotenv");
+const cors_1 = __importDefault(require("cors"));
 (0, dotenv_1.config)();
 const db = new mongodb_1.default();
 const app = (0, express_1.default)();
 app.use(express_1.default.json());
+app.use((0, cors_1.default)());
 app.listen(process.env.PORT, () => {
     console.log(`Server is listening on port ${process.env.PORT}`);
 });
@@ -36,16 +38,16 @@ app.get('/clients', (req, res) => __awaiter(void 0, void 0, void 0, function* ()
         console.log(error);
     }
 }));
-// app.get('/clients', (req: Request, res: Response) => {
-//     try {
-//         const id = req.body.id;
-//         const client = db.clientGetById(id);
-//         res.send(client);
-//     }
-//     catch (error) {
-//         console.log(error);
-//     }
-// });
+app.get('/clients', (req, res) => {
+    try {
+        const id = req.body.id;
+        const client = db.clientGetByID(id);
+        res.send(client);
+    }
+    catch (error) {
+        console.log(error);
+    }
+});
 app.post('/clients', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const newClient = {
@@ -61,6 +63,26 @@ app.post('/clients', (req, res) => __awaiter(void 0, void 0, void 0, function* (
     catch (error) {
         console.error('Error adding client:', error);
         res.status(500).json({ error: 'Internal Server Error' });
+    }
+}));
+app.put('/clients/:id', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const id = req.params.id;
+        const client = yield db.clientGetByID(id);
+        res.send(client);
+    }
+    catch (error) {
+        console.log(error);
+    }
+}));
+app.delete('/clients/:id', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const id = req.params.id;
+        const client = yield db.clientDelete(id);
+        res.send(client);
+    }
+    catch (error) {
+        console.log(error);
     }
 }));
 // Planning CRUD
@@ -80,25 +102,7 @@ app.get('/planning/:id', (req, res) => __awaiter(void 0, void 0, void 0, functio
     res.send(planning);
 }));
 app.post('/plannings', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const regexObjectID = /^[0-9a-fA-F]{24}$/;
     const { vehiculeID, carsitterID, clientID, date, time, duration } = req.body;
-    if (carsitterID === vehiculeID || clientID === vehiculeID || carsitterID === clientID) {
-        res.status(400).json({ error: 'Carsitter and vehicule or client and vehicule or carsitter and client cannot be the same person' });
-        return;
-    }
-    if (!vehiculeID || !carsitterID || !clientID || !date || !time || !duration) {
-        res.status(400).json({ error: 'Missing required fields' });
-        return;
-    }
-    if (!regexObjectID.test(vehiculeID) || !regexObjectID.test(carsitterID) || !regexObjectID.test(clientID)) {
-        res.status(400).json({ error: 'Invalid ID' });
-        return;
-    }
-    // On verifie le format de la date et du temps et de la durée (1 ou 2 chiffres)
-    if (!date.match(/^\d{4}-\d{2}-\d{2}$/) || !time.match(/^\d{2}:\d{2}$/) || !duration.match(/^\d{1,2}$/)) {
-        res.status(400).json({ error: 'Invalid date or time or duration' });
-        return;
-    }
     try {
         const newPlanning = {
             vehiculeID,
@@ -148,6 +152,7 @@ app.post('/carsitters', (req, res) => __awaiter(void 0, void 0, void 0, function
             age: req.body.age,
             password: req.body.password
         };
+        res.send(db.carsitterAdd(newCarsitter));
     }
     catch (error) {
         console.error('Error adding carsitter:', error);
@@ -157,39 +162,72 @@ app.post('/carsitters', (req, res) => __awaiter(void 0, void 0, void 0, function
 // Vehicule CRUD
 // Récupérer tous les vehicules
 app.get('/vehicules', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const vehicule = yield db.vehiculeGetAll();
-    res.send(vehicule);
+    try {
+        const vehicule = yield db.vehiculeGetAll();
+        res.send(vehicule);
+    }
+    catch (error) {
+        console.error('Error getting vehicule:', error);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
 }));
-// app.get('/vehicules', async (req: Request, res: Response) => {
-//     const id = req.body.id;
-//     const vehicule = await db.vehiculeGetById(id);
-//     res.send(vehicule);
-// }
-// );
-// app.post('/vehicules', async (req: Request, res: Response) => {
-//     const newVehicule: Vehicule =
-//     {
-//         type: req.body.type,
-//         brand: req.body.brand,
-//         model: req.body.model,
-//         price: req.body.price,
-//         mode: req.body.mode,
-//         vehicleType: req.body.vehicleType
-//     }
-//     const result = await db.vehiculeAdd(newVehicule);
-//     res.send(result);
-// }
-// );
-// app.delete('/vehicules/:id', async (req: Request, res: Response) => {
-//     const id = req.params.id;
-//     const result = await db.vehiculeDelete(id);
-//     res.send(result);
-// }
-// );
-// app.update('/vehicules/:id', async (req: Request, res: Response) => {
-//     const id = req.params.id;
-//     const result = await db.vehiculeUpdate(id);
-//     res.send(result);
-// }
-// );
+app.get('/vehicules', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const id = req.body.id;
+    try {
+        const vehicule = yield db.vehiculeGetByID(id);
+        res.send(vehicule);
+    }
+    catch (error) {
+        console.error('Error getting vehicule:', error);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+}));
+app.post('/vehicules', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const newVehicule = {
+            type: req.body.type,
+            brand: req.body.brand,
+            model: req.body.model,
+            price: req.body.price,
+            mode: req.body.mode,
+            vehicleType: req.body.vehicleType
+        };
+        const result = yield db.vehiculeAdd(newVehicule);
+        res.send(result);
+    }
+    catch (error) {
+        console.error('Error adding vehicule:', error);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+}));
+app.delete('/vehicules/:id', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const id = req.params.id;
+    try {
+        const result = yield db.vehiculeDelete(id);
+        res.send(result);
+    }
+    catch (error) {
+        console.error('Error deleting vehicule:', error);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+}));
+app.put('/vehicules/:id', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const id = req.params.id;
+    try {
+        const newVehicule = {
+            type: req.body.type,
+            brand: req.body.brand,
+            model: req.body.model,
+            price: req.body.price,
+            mode: req.body.mode,
+            vehicleType: req.body.vehicleType
+        };
+        const result = yield db.vehiculeUpdate(id, newVehicule.type, newVehicule.brand, newVehicule.model, newVehicule.price, newVehicule.mode);
+        res.send(result);
+    }
+    catch (error) {
+        console.error('Error updating vehicule:', error);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+}));
 //# sourceMappingURL=index.js.map

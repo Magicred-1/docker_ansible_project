@@ -15,8 +15,17 @@ const vehicle: VehicleProps = {
   price: 100,
 };
 
+const getAllCars = async () => {
+  const allCars = await fetch('http://localhost:3002/vehicules', {
+    method: 'GET',
+    next: { revalidate: 20 },
+  });
+  return allCars.json();
+};
+
 export default async function Home({ searchParams }: HomeProps) {
   const isDataEmpty = false;
+  const allCars = await getAllCars();
 
   return (
     <main className='overflow-hidden' data-theme='light'>
@@ -40,12 +49,9 @@ export default async function Home({ searchParams }: HomeProps) {
         {!isDataEmpty ? (
           <section>
             <div className='home__cars-wrapper'>
-              <CarCard vehicle={vehicle} />
-              <CarCard vehicle={vehicle} />
-              <CarCard vehicle={vehicle} />
-              {/* {allCars?.map((car) => (
-                <CarCard car={car} />
-              ))} */}
+              {allCars?.map((vehicle: VehicleProps) => (
+                <CarCard vehicle={vehicle} />
+              ))}
             </div>
 
             {/*  <ShowMore

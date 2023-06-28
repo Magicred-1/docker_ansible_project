@@ -2,8 +2,11 @@
 
 import { useAtom } from 'jotai';
 import { userAtom } from '@/utils/store';
+import { useState } from 'react';
+import { CarDepot } from '@/components';
 
 const page = () => {
+  const [isOpen, setIsOpen] = useState<boolean>(false);
   const [user] = useAtom(userAtom);
   return (
     <div className='flex-1 pt-36 padding-x'>
@@ -18,27 +21,36 @@ const page = () => {
       </div>
 
       <div className='mt-12 flex flex-col md:flex-row gap-24'>
-        <div
-          className='flex shadow-xl rounded-xl border border-black justify-center items-center w-[240px] md:w-auto
-            py-2 px-8 gap-8 h-[200px]'
-        >
-          <div className='flex flex-col items-center justify-center'>
-            <div className='rounded-full bg-gray-900 text-white font-bold text-2xl py-4 px-6'>
-              {user.prenom.slice(0, 1)}
+        <div className='flex flex-col'>
+          <div
+            className='flex shadow-xl rounded-xl border border-black justify-center items-center w-[240px] md:w-auto
+          py-2 px-8 gap-8 h-[200px]'
+          >
+            <div className='flex flex-col items-center justify-center'>
+              <div className='rounded-full bg-gray-900 text-white font-bold text-2xl py-4 px-6'>
+                {user.prenom.slice(0, 1)}
+              </div>
+              <h4 className='font-bold text-xl mt-4'>{user.prenom}</h4>
+              <span className='text-sm italic'>Carsitters</span>
             </div>
-            <h4 className='font-bold text-xl mt-4'>{user.prenom}</h4>
-            <span className='text-sm italic'>Carsitters</span>
-          </div>
 
-          <div>
-            <div className='flex flex-col'>
-              3 <br />
-              <span className='text-sm italic'>évaluations</span>
-              <div className='border border-black w-full my-2' />
-              2 <br />
-              <span className='text-sm italic'>mois sur CarHub</span>
+            <div>
+              <div className='flex flex-col'>
+                3 <br />
+                <span className='text-sm italic'>évaluations</span>
+                <div className='border border-black w-full my-2' />
+                2 <br />
+                <span className='text-sm italic'>mois sur CarHub</span>
+              </div>
             </div>
           </div>
+          <button
+            className='px-4 py-2 border border-black rounded-lg hover:bg-slate-600 hover:text-white mt-6'
+            onClick={() => setIsOpen(true)}
+          >
+            Faire garder ma voiture
+          </button>
+          <CarDepot isOpen={isOpen} closeModal={() => setIsOpen(false)} />
         </div>
 
         <div>
