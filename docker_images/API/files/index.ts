@@ -175,6 +175,7 @@ app.post('/carsitters', async (req: Request, res: Response) => {
             age: req.body.age,
             password: req.body.password
         }
+        res.send(db.carsitterAdd(newCarsitter));
     } catch (error) {
         console.error('Error adding carsitter:', error);
         res.status(500).json({ error: 'Internal Server Error' });
@@ -185,59 +186,86 @@ app.post('/carsitters', async (req: Request, res: Response) => {
 // Vehicule CRUD
 // Récupérer tous les vehicules
 app.get('/vehicules', async (req: Request, res: Response) => {
-    const vehicule = await db.vehiculeGetAll();
+    try {
+        const vehicule = await db.vehiculeGetAll();
 
-    res.send(vehicule);
+        res.send(vehicule);
+    } catch (error) {
+        console.error('Error getting vehicule:', error);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
 }
 );
 
 app.get('/vehicules', async (req: Request, res: Response) => {
     const id = req.body.id;
-    const vehicule = await db.vehiculeGetByID(id);
-    res.send(vehicule);
+    try {
+        const vehicule = await db.vehiculeGetByID(id);
+        res.send(vehicule);
+    } catch (error) {
+        console.error('Error getting vehicule:', error);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
 }
 );
 
 app.post('/vehicules', async (req: Request, res: Response) => {
-    const newVehicule: Vehicule =
-    {
-        type: req.body.type,
-        brand: req.body.brand,
-        model: req.body.model,
-        price: req.body.price,
-        mode: req.body.mode,
-        vehicleType: req.body.vehicleType
+    try {
+        const newVehicule: Vehicule =
+        {
+            type: req.body.type,
+            brand: req.body.brand,
+            model: req.body.model,
+            price: req.body.price,
+            mode: req.body.mode,
+            vehicleType: req.body.vehicleType
+        }
+    
+        const result = await db.vehiculeAdd(newVehicule);
+    
+        res.send(result);
+    } catch (error) {
+        console.error('Error adding vehicule:', error);
+        res.status(500).json({ error: 'Internal Server Error' });
     }
-
-    const result = await db.vehiculeAdd(newVehicule);
-
-    res.send(result);
 }
 );
 
 app.delete('/vehicules/:id', async (req: Request, res: Response) => {
     const id = req.params.id;
-    const result = await db.vehiculeDelete(id);
-    res.send(result);
+
+    try {
+        const result = await db.vehiculeDelete(id);
+        res.send(result);
+    } catch (error) {
+        console.error('Error deleting vehicule:', error);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
 }
 );
 
 app.put('/vehicules/:id', async (req: Request, res: Response) => {
     const id = req.params.id;
 
-    const newVehicule: Vehicule =
-    {
-        type: req.body.type,
-        brand: req.body.brand,
-        model: req.body.model,
-        price: req.body.price,
-        mode: req.body.mode,
-        vehicleType: req.body.vehicleType
+    try {
+        const newVehicule: Vehicule =
+        {
+            type: req.body.type,
+            brand: req.body.brand,
+            model: req.body.model,
+            price: req.body.price,
+            mode: req.body.mode,
+            vehicleType: req.body.vehicleType
+        }
+
+        const result = await db.vehiculeUpdate(id, newVehicule.type, newVehicule.brand, newVehicule.model, newVehicule.price, newVehicule.mode);
+
+        res.send(result);
     }
-
-    const result = await db.vehiculeUpdate(id, newVehicule.type, newVehicule.brand, newVehicule.model, newVehicule.price, newVehicule.mode);
-
-    res.send(result);
+    catch (error) {
+        console.error('Error updating vehicule:', error);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
 }
 
 );
