@@ -198,6 +198,8 @@ class MongoDBConnector {
             const insertedCarsitter = {
                 lastname: carsitter.lastname,
                 firstname: carsitter.firstname,
+                email: carsitter.email,
+                password: bcrypt.hashSync(String(carsitter.password), 10),
                 age: carsitter.age
             };
 

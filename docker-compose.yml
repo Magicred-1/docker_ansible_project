@@ -30,6 +30,3 @@ services:
       - .:/api
     depends_on:
       - db
-  network:
-    driver: bridge,
-    name: local_network

@@ -1,5 +1,10 @@
 FROM ubuntu:latest
 
+# Définir les arguments d'environnement
+ARG MONGODB_URI=$MONGODB_URI
+ARG MONGODB_DB=$MONGODB_DB
+ARG PORT=$PORT
+
 # Installer NodeJS
 RUN apt-get update && apt-get install -y curl
 
