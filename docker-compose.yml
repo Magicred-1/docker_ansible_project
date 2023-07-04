@@ -1,32 +1,39 @@
+version: '3'
 services:
-  # Lancer le service web sur le port 3000
-  web:
-    build: ./web/expressjs.dockerfile
-    ports:
-      - "3000:3000"
-    # Monter le répertoire du projet WEB dans le conteneur
-    volumes:
-      - .:/web
-    depends_on:
-      - db
-  # Lancer le service de base de données sur le port 5432
-  db:
-    build: ./db/mongodb.dockerfile
-    ports:
-      - "5432:5432"
-    # Monter le répertoire du projet DB dans le conteneur
-    volumes:
-      - .:/db
-    # Définir les variables d'environnement
+  api:
+    build:
+      context: .
+      dockerfile: ./docker_images/api/expressjs.dockerfile
+    env_file: .env
     environment:
-      - db_name, db_user, db_password
-  # Run the api service at port 5000
-  api: 
-    build: .:/api/expressjs.dockerfile
-    ports:
-      - "5000:5000"
-    # Monter le répertoire du projet API dans le conteneur
-    volumes:
-      - .:/api
+      - MONGODB_URI=${MONGODB_URI}
+      - MONGODB_DB=${MONGODB_DB_NAME}
+      - PORT=${PORT_API}
     depends_on:
       - db
+    volumes:
+      - ./api:/api
+
+  db:
+    build:
+      context: .
+      dockerfile: ./docker_images/db/mongodb.dockerfile
+    env_file: .env
+    environment:
+      - db_name=${MONGODB_DB_NAME}
+      - db_user=${MONGODB_DB_USERNAME}
+      - db_password=${MONGODB_DB_PASSWORD}
+    volumes:
+      - ./data/db:/data/db
+
+  web:
+    build:
+      context: .
+      dockerfile: ./docker_images/web/nextjs_react_custom.dockerfile
+    env_file: .env
+    environment:
+      - PORT=${PORT_WEB}
+      - MONGODB_DB_NAME=${MONGODB_DB_NAME}
+      - MONGODB_URI=${MONGODB_URI}
+    volumes:
+      - ./web:/app

@@ -1,18 +1,12 @@
 FROM ubuntu:latest
 
 # Définir les arguments d'environnement
-ARG MONGODB_URI=$MONGODB_URI
-ARG MONGODB_DB=$MONGODB_DB
-ARG PORT=$PORT
+ENV MONGODB_URI=$MONGODB_URI
+ENV MONGODB_DB_NAME=$MONGODB_DB_NAME
+ENV PORT=$PORT_API
 
 # Installer NodeJS
-RUN apt-get update && apt-get install -y curl
-
-# Installer NodeJS et les dépendances + Typescript
-RUN npm install -g yarn express \
-mongoose typescript ts-node \
-@types/express @types/mongoose \
-@types/node dotenv
+RUN apt-get update && apt-get install -y curl nodejs npm git
 
 # Créer le dossier /api
 RUN mkdir /api
@@ -20,12 +14,13 @@ RUN mkdir /api
 # Définir le dossier de travail par défaut
 WORKDIR /api
 
-# Copier les fichiers du dossier files dans le dossier /api
-COPY files /api/
+# Copier les fichiers du dossier files en local dans le dossier /api
+COPY ./docker_images/api/files /api
+
+WORKDIR /api
 
 # Installer les dépendances
-RUN yarn build
+RUN npm i
 
-# Lancer l'application sur le port 5000 avec Yarn
-EXPOSE 5000
-CMD ["yarn", "start"]
+# Lancer le build
+RUN npm run buildandrun

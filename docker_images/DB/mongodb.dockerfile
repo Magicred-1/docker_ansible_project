@@ -1,18 +1,13 @@
 # Utilisation de l'image officielle MongoDB
 FROM mongo:latest
 
-# Arguments personnalisables
-ARG db_name
-ARG db_user
-ARG db_password
-
 # Définition des variables d'environnement
-ENV MONGO_INITDB_ROOT_USERNAME=$db_user
-ENV MONGO_INITDB_ROOT_PASSWORD=$db_password
-ENV MONGO_INITDB_DATABASE=$db_name
+ENV MONGO_INITDB_ROOT_USERNAME=$MONGODB_DB_USERNAME
+ENV MONGO_INITDB_ROOT_PASSWORD=$MONGODB_DB_PASSWORD
+ENV MONGO_INITDB_DATABASE=$MONGODB_DB_USERNAME
 
 # Copie du script d'initialisation de la base de données
-COPY init-db.js /docker-entrypoint-initdb.d/
+COPY ./docker_images/db/init_db.js /docker-entrypoint-initdb.d/
 
 # Exécution du script d'initialisation de la base de données
 CMD ["mongod"]

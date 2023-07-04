@@ -1,5 +1,5 @@
-import { Carsitter } from '../carsitter/carsitter';
-import { Vehicule } from '../vehicule/vehicule';
+import { Carsitter } from '../carsitter/carsitterModel.interface';
+import { Vehicule } from '../vehicule/vehiculeModel.interface';
 
 interface Planning {
     _id?: string;

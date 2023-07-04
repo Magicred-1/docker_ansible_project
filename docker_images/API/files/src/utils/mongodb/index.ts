@@ -9,7 +9,6 @@ class MongoDBConnector {
     private uri: string;
     private client: mongodb.MongoClient;
     private databaseName: string;
-    private regexObjectID = /^[0-9a-fA-F]{24}$/;
 
     constructor() {
         this.uri = process.env.MONGODB_URI ?? '';

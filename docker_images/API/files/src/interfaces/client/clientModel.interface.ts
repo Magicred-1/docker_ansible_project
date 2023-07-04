@@ -1,4 +1,4 @@
-import { Vehicule } from "../vehicule/vehicule";
+import { Vehicule } from "../vehicule/vehiculeModel.interface";
 
 interface Client {
     _id?: string;

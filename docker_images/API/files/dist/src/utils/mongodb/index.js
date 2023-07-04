@@ -42,7 +42,6 @@ const bcrypt_1 = __importDefault(require("bcrypt"));
 class MongoDBConnector {
     constructor() {
         var _a, _b;
-        this.regexObjectID = /^[0-9a-fA-F]{24}$/;
         this.uri = (_a = process.env.MONGODB_URI) !== null && _a !== void 0 ? _a : '';
         this.client = new mongodb.MongoClient(this.uri);
         this.databaseName = (_b = process.env.MONGODB_DB_NAME) !== null && _b !== void 0 ? _b : '';
@@ -194,6 +193,8 @@ class MongoDBConnector {
                 const insertedCarsitter = {
                     lastname: carsitter.lastname,
                     firstname: carsitter.firstname,
+                    email: carsitter.email,
+                    password: bcrypt_1.default.hashSync(String(carsitter.password), 10),
                     age: carsitter.age
                 };
                 const result = yield carsitters.insertOne(insertedCarsitter);
