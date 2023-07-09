@@ -22,6 +22,9 @@ app.use('/plannings', planningRoutes);
 app.use('/carsitters', carsitterRoutes);
 app.use('/vehicules', vehiculeRoutes);
 
+app.get('/', (req, res) => {
+    res.send('Carsitter API is running');
+});
 // Handle 404 errors
 app.use((req, res) => {
     res.status(404).json({ error: 'Not Found' });

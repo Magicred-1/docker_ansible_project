@@ -11,7 +11,7 @@
     "ts.check": "tsc --project tsconfig.json"
   },
   "keywords": [],
-  "author": "Alexis Duquenne, Djason Gadiou, Theo",
+  "author": "Alexis Duquenne, Djason Gadiou, Theo Samarasinghe",
   "license": "ISC",
   "devDependencies": {
     "@types/bcrypt": "^5.0.0",
@@ -19,8 +19,6 @@
     "@types/cors": "^2.8.13",
     "@types/express": "^4.17.17",
     "@types/mongodb": "^4.0.7",
-    "cors": "^2.8.5",
-    "express": "^4.18.2",
     "typescript": "^5.0.4"
   },
   "dependencies": {
@@ -28,7 +26,9 @@
     "dotenv": "^16.3.1",
     "mongodb": "^5.6.0",
     "nodemon": "^2.0.22",
-    "ts-node": "^10.9.1"
+    "ts-node": "^10.9.1",
+    "cors": "^2.8.5",
+    "express": "^4.18.2"
   },
   "pre-commit": [
     "ts.check",

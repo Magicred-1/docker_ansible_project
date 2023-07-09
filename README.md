@@ -23,7 +23,7 @@ To stop the project, you need to run the following command:
 ```
 
 ## How to access the project
-To access the project, you need to go to the following URL: http://localhost:3000
+To access the project, you need to go to the following URL: http://localhost:80
 
 ## How to access the API
 To access the API, you need to go to the following URL: http://localhost:5000

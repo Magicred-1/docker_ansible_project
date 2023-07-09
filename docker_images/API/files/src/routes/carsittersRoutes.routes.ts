@@ -42,4 +42,26 @@ router.post('/', async (req: Request, res: Response) => {
     }
 });
 
+router.put('/:id', async (req: Request, res: Response) => {
+    const id = req.params.id;
+    try {
+        const carsitter = await db.carsitterGetByID(id);
+        res.send(carsitter);
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+});
+
+router.delete('/:id', async (req: Request, res: Response) => {
+    const id = req.params.id;
+    try {
+        const result = await db.carsitterDelete(id);
+        res.send(result);
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+});
+
 export default router;

@@ -1,22 +1,31 @@
-FROM ubuntu:latest
+FROM node:18-alpine AS ts-builder
 
-# Installer NodeJS
-RUN apt-get update && apt-get install -y curl
-RUN curl -sL https://deb.nodesource.com/setup_16.x | bash -
-RUN apt-get install -y nodejs
+ENV PORT=$PORT_WEB
 
 # Créer le dossier /app
-RUN mkdir /app
-
-# Définir le dossier de travail par défaut
-WORKDIR /app
+RUN mkdir -p /usr/src/app
 
 # Copier les fichiers du dossier files dans le dossier /app
-COPY ./docker_images/web/files /app
+COPY ./docker_images/web/files .
 
-# Installer les dépendances du projet provenant du dossier /files en local
-RUN npm i
+# Définir le dossier de travail par défaut
+WORKDIR /usr/src/app
 
-# Lancer l'application sur le port 3000 avec Yarn
-EXPOSE 3000
-RUN npm run dev
+RUN npm install --omit=dev
+
+# Exposer le port en argument d'environnement
+EXPOSE $PORT
+
+FROM node:18-alpine AS ts-runtime
+
+# Définir les arguments d'environnement
+ENV PORT=$PORT_WEB
+
+COPY --from=ts-builder /usr/src/app/dist /usr/src/app/dist
+
+# Définir le dossier de travail par défaut
+WORKDIR /usr/src/app
+
+
+# Lancer l'application sur le port avec Node
+CMD ["npm", "run", "start"]

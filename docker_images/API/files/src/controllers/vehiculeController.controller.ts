@@ -34,7 +34,7 @@ export const addVehicule = async (req: Request, res: Response) => {
         price: req.body.price,
         mode: req.body.mode,
         vehicleType: req.body.vehicleType,
-        };
+    };
 
         const result = await db.vehiculeAdd(newVehicule);
 
@@ -62,21 +62,21 @@ export const updateVehicule = async (req: Request, res: Response) => {
 
     try {
         const newVehicule: Vehicule = {
-        type: req.body.type,
-        brand: req.body.brand,
-        model: req.body.model,
-        price: req.body.price,
-        mode: req.body.mode,
-        vehicleType: req.body.vehicleType,
+            type: req.body.type,
+            brand: req.body.brand,
+            model: req.body.model,
+            price: req.body.price,
+            mode: req.body.mode,
+            vehicleType: req.body.vehicleType,
         };
 
         const result = await db.vehiculeUpdate(
-        id,
-        newVehicule.type,
-        newVehicule.brand,
-        newVehicule.model,
-        newVehicule.price,
-        newVehicule.mode
+            id,
+            newVehicule.type,
+            newVehicule.brand,
+            newVehicule.model,
+            newVehicule.price,
+            newVehicule.mode
         );
 
         res.send(result);

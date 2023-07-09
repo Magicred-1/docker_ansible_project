@@ -48,4 +48,26 @@ router.post('/', async (req: Request, res: Response) => {
     }
 });
 
+router.put('/:id', async (req: Request, res: Response) => {
+    const id = req.params.id;
+    try {
+        const planning = await db.planningGetById(id);
+        res.send(planning);
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+});
+
+router.delete('/:id', async (req: Request, res: Response) => {
+    const id = req.params.id;
+    try {
+        const result = await db.planningDelete(id);
+        res.send(result);
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+});
+
 export default router;
