@@ -1,7 +1,10 @@
+'use client';
+
 import { HomeProps } from '@/utils';
 import { fuels, yearsOfProduction } from '@/utils';
 import { CarCard, ShowMore, SearchBar, CustomFilter, Hero } from '@/components';
 import { VehicleProps } from '@/components/VehicleCard';
+import { useEffect, useState } from 'react';
 
 const vehicle: VehicleProps = {
   vehicleType: 'Car',
@@ -17,7 +20,7 @@ const vehicle: VehicleProps = {
 
 const getAllCars = async () => {
   const allCars = await fetch(
-    `http://localhost:${process.env.PORT}/vehicules`,
+    `http://localhost:${process.env.NEXT_PUBLIC_PORT}/vehicules`,
     {
       method: 'GET',
       next: { revalidate: 20 },
@@ -26,9 +29,19 @@ const getAllCars = async () => {
   return allCars.json();
 };
 
-export default async function Home({ searchParams }: HomeProps) {
+export default function Home({ searchParams }: HomeProps) {
   const isDataEmpty = false;
-  const allCars = await getAllCars();
+  //const allCars = await getAllCars();
+  const [cars, setCars] = useState([]);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      const result = await getAllCars();
+      console.log(result);
+      setCars(result);
+    };
+    fetchData();
+  }, []);
 
   return (
     <main className='overflow-hidden' data-theme='light'>
@@ -52,9 +65,10 @@ export default async function Home({ searchParams }: HomeProps) {
         {!isDataEmpty ? (
           <section>
             <div className='home__cars-wrapper'>
-              {allCars?.map((vehicle: VehicleProps) => (
-                <CarCard vehicle={vehicle} />
-              ))}
+              {cars.length > 0 &&
+                cars?.map((vehicle: VehicleProps) => (
+                  <CarCard vehicle={vehicle} />
+                ))}
             </div>
 
             {/*  <ShowMore

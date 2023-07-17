@@ -14,7 +14,7 @@ app.use(express.json());
 app.use(cors());
 
 app.listen(process.env.PORT_API, () => {
-    console.log(`Server is listening on port ${process.env.PORT_API}`);
+  console.log(`Server is listening on port ${process.env.PORT_API}`);
 });
 
 app.use('/clients', clientRoutes);
@@ -23,9 +23,9 @@ app.use('/carsitters', carsitterRoutes);
 app.use('/vehicules', vehiculeRoutes);
 
 app.get('/', (req, res) => {
-    res.send('Carsitter API is running');
+  res.send('Carsitter API is running');
 });
 // Handle 404 errors
 app.use((req, res) => {
-    res.status(404).json({ error: 'Not Found' });
+  res.status(404).json({ error: 'Not Found' });
 });

@@ -10,4 +10,4 @@ ENV MONGO_INITDB_DATABASE=$MONGODB_DB_NAME
 COPY ./docker_images/db/init_db.js /docker-entrypoint-initdb.d/
 
 # Exécution du script d'initialisation de la base de données
-CMD ["mongod"]
+CMD ["mongodb"]

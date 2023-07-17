@@ -6,7 +6,7 @@
   "scripts": {
     "start": "node dist/index.js",
     "build": "tsc",
-    "buildandrun": "tsc && nodemon dist/index.js",
+    "buildandrun": "nodemon index.ts",
     "lint": "eslint . --fix",
     "ts.check": "tsc --project tsconfig.json"
   },

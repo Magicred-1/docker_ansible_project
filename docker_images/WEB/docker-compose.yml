@@ -1,0 +1,12 @@
+version: '3.8'
+
+services:
+  web:
+    build:
+      context: .
+    env_file:
+      - ./files/.env.local
+    restart: always
+    container_name: front-car
+    ports:
+      - "3000:3000"

@@ -1,39 +1,26 @@
-version: '3'
+version: '3.8'
+
 services:
   api:
     build:
-      context: .
-      dockerfile: ./docker_images/api/expressjs.dockerfile
-    env_file: .env
-    environment:
-      - MONGODB_URI=${MONGODB_URI}
-      - MONGODB_DB=${MONGODB_DB_NAME}
-      - PORT=${PORT_API}
-    depends_on:
-      - db
-    volumes:
-      - ./api:/api
-
-  db:
-    build:
-      context: .
-      dockerfile: ./docker_images/db/mongodb.dockerfile
-    env_file: .env
-    environment:
-      - db_name=${MONGODB_DB_NAME}
-      - db_user=${MONGODB_DB_USERNAME}
-      - db_password=${MONGODB_DB_PASSWORD}
-    volumes:
-      - ./data/db:/data/db
+      context: ./docker_images/api
+    env_file: 
+      - ./.env
+    restart: always
+    container_name: api-car
+    ports:
+      - 3001:3001
 
   web:
     build:
-      context: .
-      dockerfile: ./docker_images/web/nextjs_react_custom.dockerfile
-    env_file: .env
-    environment:
-      - PORT=${PORT_WEB}
-      - MONGODB_DB_NAME=${MONGODB_DB_NAME}
-      - MONGODB_URI=${MONGODB_URI}
-    volumes:
-      - ./web:/app
+      context: ./docker_images/web
+    env_file:
+      - ./docker_images/web/files/.env.local
+    restart: always
+    container_name: front-car
+    ports:
+      - "3000:3000"
+    depends_on:
+      - api
+
+    
