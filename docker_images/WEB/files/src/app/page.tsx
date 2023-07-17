@@ -16,10 +16,13 @@ const vehicle: VehicleProps = {
 };
 
 const getAllCars = async () => {
-  const allCars = await fetch('http://localhost:3002/vehicules', {
-    method: 'GET',
-    next: { revalidate: 20 },
-  });
+  const allCars = await fetch(
+    `http://localhost:${process.env.PORT}/vehicules`,
+    {
+      method: 'GET',
+      next: { revalidate: 20 },
+    }
+  );
   return allCars.json();
 };
 
