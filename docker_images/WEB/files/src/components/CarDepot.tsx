@@ -66,13 +66,9 @@ const CarDepot = ({ isOpen, closeModal }: CarDepotProps) => {
     postVehicle(form)
       .then((res) => {
         console.log('vehicule', res);
-        if (res.status === 201) {
-          toast.success('Votre véhicule a été ajouté avec succès', {
-            id: notification,
-          });
-        } else {
-          toast.error('Une erreur est survenue', { id: notification });
-        }
+        toast.success('Votre véhicule a été ajouté avec succès', {
+          id: notification,
+        });
       })
       .catch((err) => {
         toast.error('Une erreur est survenue', { id: notification });

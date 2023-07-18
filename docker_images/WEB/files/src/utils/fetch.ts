@@ -10,7 +10,7 @@ export interface postVehicleProps {
 
 export async function postVehicle(vehicle: postVehicleProps) {
   console.log('vehicule info :', vehicle);
-  const response = await fetch(`${'http://localhost:3002'}/vehicules`, {
+  const response = await fetch(`${'http://localhost:3001'}/vehicules`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
